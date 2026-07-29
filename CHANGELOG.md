@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-29
+
+### Fixed
+- [assets/css/page-transition.css] Added `scrollbar-gutter: stable` on `html` to stop the page jumping sideways when the scrollbar reappears after the entrance overlay clears `overflow: hidden` on `body`
+
 ## [1.0.0] - 2026-07-29
 
 ### Added
