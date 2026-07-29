@@ -1,0 +1,111 @@
+/**
+ * Bonsai Page Transitions
+ *
+ * Full-screen overlay played on load (entrance) and on internal link
+ * click (exit) — see page-transition.js. All 3 styles share the same
+ * left/right panel markup (output via wp_body_open by the plugin);
+ * "fade" and "slide-up" only ever animate the left panel full-width, the
+ * right panel is only used by "curtain".
+ *
+ * Entrance runs automatically via CSS animation the moment the overlay
+ * paints (no JS needed, so there's no flash of covered content). Exit is
+ * triggered by JS adding .is-leaving, which swaps in the *_out keyframes —
+ * changing the animation-name restarts it fresh.
+ */
+
+body.has-page-transition {
+  overflow: hidden;
+}
+
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.page-transition.is-leaving {
+  pointer-events: auto;
+}
+
+.page-transition__panel {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bpt-overlay-colour, #111111);
+}
+
+/* ---------- Fade ---------- */
+.page-transition[data-transition-style="fade"] .page-transition__panel--right {
+  display: none;
+}
+.page-transition[data-transition-style="fade"] .page-transition__panel--left {
+  animation: bptFadeIn .6s ease forwards;
+}
+.page-transition[data-transition-style="fade"].is-leaving .page-transition__panel--left {
+  animation: bptFadeOut .5s ease forwards;
+}
+@keyframes bptFadeIn {
+  from { opacity: 1; visibility: visible; }
+  to   { opacity: 0; visibility: hidden; }
+}
+@keyframes bptFadeOut {
+  from { opacity: 0; visibility: visible; }
+  to   { opacity: 1; visibility: visible; }
+}
+
+/* ---------- Slide Up ---------- */
+.page-transition[data-transition-style="slide-up"] .page-transition__panel--right {
+  display: none;
+}
+.page-transition[data-transition-style="slide-up"] .page-transition__panel--left {
+  animation: bptSlideIn .7s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+.page-transition[data-transition-style="slide-up"].is-leaving .page-transition__panel--left {
+  animation: bptSlideOut .6s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+@keyframes bptSlideIn {
+  from { transform: translateY(0); visibility: visible; }
+  to   { transform: translateY(-100%); visibility: hidden; }
+}
+@keyframes bptSlideOut {
+  from { transform: translateY(100%); visibility: visible; }
+  to   { transform: translateY(0); visibility: visible; }
+}
+
+/* ---------- Curtain ---------- */
+.page-transition[data-transition-style="curtain"] .page-transition__panel--left {
+  right: 50%;
+  animation: bptCurtainLeftIn .8s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+.page-transition[data-transition-style="curtain"] .page-transition__panel--right {
+  left: 50%;
+  animation: bptCurtainRightIn .8s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+.page-transition[data-transition-style="curtain"].is-leaving .page-transition__panel--left {
+  animation: bptCurtainLeftOut .6s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+.page-transition[data-transition-style="curtain"].is-leaving .page-transition__panel--right {
+  animation: bptCurtainRightOut .6s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+@keyframes bptCurtainLeftIn {
+  from { transform: translateX(0); visibility: visible; }
+  to   { transform: translateX(-100%); visibility: hidden; }
+}
+@keyframes bptCurtainRightIn {
+  from { transform: translateX(0); visibility: visible; }
+  to   { transform: translateX(100%); visibility: hidden; }
+}
+@keyframes bptCurtainLeftOut {
+  from { transform: translateX(-100%); visibility: visible; }
+  to   { transform: translateX(0); visibility: visible; }
+}
+@keyframes bptCurtainRightOut {
+  from { transform: translateX(100%); visibility: visible; }
+  to   { transform: translateX(0); visibility: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    display: none;
+  }
+}

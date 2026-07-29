@@ -1,0 +1,18 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-07-29
+
+### Added
+- [bonsai-page-transitions.php] Initial release, extracted from a site-specific implementation on the Farani Taylor theme: Settings page with Transition Style (None/Fade/Slide Up/Curtain), Overlay Colour and Skip Homepage fields
+- [bonsai-page-transitions.php] Overlay markup output via `wp_body_open`, styles/script enqueued via `wp_enqueue_scripts`, both gated by `bpt_is_active()`
+- [assets/css/page-transition.css, assets/js/page-transition.js] Fade / Slide Up / Curtain animations — CSS-only entrance (no flash while JS loads), JS-driven exit on internal link click before the real navigation fires
+- [bonsai-page-transitions.php] Capability gate (`manage_options`, filterable via `bonsai_page_transitions_capability`) on settings page and save handlers
+- [bonsai-page-transitions.php] Settings link added to the plugin's row on the Plugins screen
+- [bonsai-page-transitions.php] Options deleted on uninstall
+- [composer.json, vendor/] Wired up YahnisElsts/plugin-update-checker (^5.6) so the plugin can self-update from GitHub releases via the wp-admin Plugins screen, matching `bonsai-code-injector`
