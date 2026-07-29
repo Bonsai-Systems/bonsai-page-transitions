@@ -13,6 +13,14 @@
  * changing the animation-name restarts it fresh.
  */
 
+/* Reserve the scrollbar gutter permanently so toggling overflow on the
+   body (below) never changes the available content width — without this,
+   the page visibly jumps sideways when the scrollbar reappears once the
+   transition overlay clears. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body.has-page-transition {
   overflow: hidden;
 }
