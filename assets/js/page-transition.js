@@ -56,6 +56,14 @@
 				return;
 			}
 
+			// Another handler already cancelled this click (e.g. a mega
+			// menu / accordion / modal trigger that's an <a> for
+			// progressive-enhancement reasons but isn't actually
+			// navigating anywhere) — respect that and do nothing.
+			if (e.isDefaultPrevented()) {
+				return;
+			}
+
 			var link = this;
 			var href = link.getAttribute('href');
 
