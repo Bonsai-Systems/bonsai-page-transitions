@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-30
+
+### Fixed
+- [assets/js/page-transition.js] Respect `e.isDefaultPrevented()` on link clicks — skip the transition when another handler (mega menu, accordion, modal trigger) has already cancelled the click on an `<a>` that isn't actually navigating
+
 ## [1.0.1] - 2026-07-29
 
 ### Fixed
