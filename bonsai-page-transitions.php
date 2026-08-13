@@ -23,7 +23,7 @@ require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $bpt_update_checker = PucFactory::buildUpdateChecker(
-	'https://github.com/gakdesign/bonsai-page-transitions',
+	'https://github.com/Bonsai-Systems/bonsai-page-transitions',
 	__FILE__,
 	'bonsai-page-transitions',
 	6
