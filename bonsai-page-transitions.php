@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai Page Transitions
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Plays a full-screen wipe animation (fade / slide up / curtain) whenever a visitor clicks a link to another page on the site. Real page loads underneath — no AJAX content-swap.
- * Version:     1.0.2
+ * Version:     1.1.0
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,12 +32,14 @@ $bpt_update_checker = PucFactory::buildUpdateChecker(
 $bpt_update_checker->setBranch( 'main' );
 $bpt_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BPT_VERSION', '1.0.2' );
+define( 'BPT_VERSION', '1.1.0' );
 define( 'BPT_PLUGIN_FILE', __FILE__ );
 define( 'BPT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BPT_OPTION_GROUP', 'bpt_settings_group' );
 define( 'BPT_PAGE_SLUG', 'bonsai-page-transitions' );
 define( 'BPT_CAPABILITY', apply_filters( 'bonsai_page_transitions_capability', 'manage_options' ) );
+
+require_once plugin_dir_path( __FILE__ ) . 'includes/admin-ui.php';
 
 // ---------------------------------------------------------------------------
 // Settings registration
@@ -87,7 +89,8 @@ function bpt_register_settings() {
 		__( 'Transition Style', 'bonsai-page-transitions' ),
 		'bpt_render_style_field',
 		BPT_PAGE_SLUG,
-		'bpt_main_section'
+		'bpt_main_section',
+		array( 'label_for' => 'bpt_transition_style' )
 	);
 
 	add_settings_field(
@@ -95,7 +98,8 @@ function bpt_register_settings() {
 		__( 'Overlay Colour', 'bonsai-page-transitions' ),
 		'bpt_render_colour_field',
 		BPT_PAGE_SLUG,
-		'bpt_main_section'
+		'bpt_main_section',
+		array( 'label_for' => 'bpt_overlay_colour' )
 	);
 
 	add_settings_field(
@@ -105,6 +109,15 @@ function bpt_register_settings() {
 		BPT_PAGE_SLUG,
 		'bpt_main_section'
 	);
+}
+
+/*
+ * options.php checks manage_options for every option group unless told
+ * otherwise, so a filtered BPT_CAPABILITY could see the page but not save.
+ */
+add_filter( 'option_page_capability_' . BPT_OPTION_GROUP, 'bpt_option_page_capability' );
+function bpt_option_page_capability() {
+	return BPT_CAPABILITY;
 }
 
 function bpt_get_styles() {
@@ -191,6 +204,7 @@ function bpt_admin_enqueue( $hook ) {
 		return;
 	}
 
+	bpt_enqueue_admin_ui();
 	wp_enqueue_style( 'wp-color-picker' );
 	wp_enqueue_script( 'wp-color-picker' );
 	wp_add_inline_script( 'wp-color-picker', "jQuery(function($){ $('.bpt-colour-picker').wpColorPicker(); });" );
@@ -201,15 +215,31 @@ function bpt_render_settings_page() {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'bonsai-page-transitions' ) );
 	}
 	?>
-	<div class="wrap">
-		<h1><?php esc_html_e( 'Bonsai Page Transitions', 'bonsai-page-transitions' ); ?></h1>
-		<p><?php esc_html_e( 'Choose the full-screen wipe animation played on internal link clicks, sitewide. Add a "no-transition" class to any link to opt it out.', 'bonsai-page-transitions' ); ?></p>
+	<div class="wrap bonsai-ui bonsai-ui--narrow">
+		<?php
+		bpt_render_admin_header(
+			__( 'Bonsai Page Transitions', 'bonsai-page-transitions' ),
+			__( 'Choose the full-screen wipe animation played on internal link clicks, sitewide.', 'bonsai-page-transitions' )
+		);
+		?>
 		<form method="post" action="options.php">
-			<?php
-			settings_fields( BPT_OPTION_GROUP );
-			do_settings_sections( BPT_PAGE_SLUG );
-			submit_button();
-			?>
+			<section class="bonsai-ui-card" aria-labelledby="bpt-settings-title">
+				<h2 class="bonsai-ui-card__title" id="bpt-settings-title"><?php esc_html_e( 'Transition', 'bonsai-page-transitions' ); ?></h2>
+				<p class="bonsai-ui-card__intro">
+					<?php
+					printf(
+						/* translators: %s: the no-transition CSS class */
+						esc_html__( 'Add a %s class to any link to opt it out.', 'bonsai-page-transitions' ),
+						'<code>no-transition</code>'
+					);
+					?>
+				</p>
+				<?php
+				settings_fields( BPT_OPTION_GROUP );
+				do_settings_sections( BPT_PAGE_SLUG );
+				?>
+			</section>
+			<?php submit_button(); ?>
 		</form>
 	</div>
 	<?php

@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-30
+
+### Changed
+- [includes/admin-ui.php, assets/] Settings → Page Transitions restyled with the Bonsai admin design system: logo header with version and GitHub/changelog links, settings in a card. Stylesheet loads on this screen only. No option or field changes.
+
+### Fixed
+- [bonsai-page-transitions.php] Sites using the `bonsai_page_transitions_capability` filter could open the settings page but not save it, because `options.php` still required `manage_options`. Added `option_page_capability_bpt_settings_group`.
+- [bonsai-page-transitions.php] Transition style and overlay colour labels weren't tied to their inputs; added `label_for`.
+
 ## [1.0.2] - 2026-07-30
 
 ### Fixed
