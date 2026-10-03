@@ -4,7 +4,7 @@ A minimal WordPress plugin that plays a full-screen wipe animation whenever a vi
 
 ## Features
 
-- Settings page under **Settings → Page Transitions**
+- Settings page under **Bonsai → Page Transitions**, part of the shared Bonsai menu (see [Bonsai menu](#bonsai-menu))
 - Three styles: **Fade**, **Slide Up**, **Curtain** (or **None** to disable)
 - Configurable overlay colour
 - **Skip Homepage** option, for themes that already have their own homepage loader/intro animation
@@ -22,7 +22,7 @@ A minimal WordPress plugin that plays a full-screen wipe animation whenever a vi
 ## Usage
 
 1. Activate the plugin.
-2. Go to **Settings → Page Transitions**.
+2. Go to **Bonsai → Page Transitions**.
 3. Pick a style, set the overlay colour, and decide whether the homepage should be skipped.
 4. Save. Every internal link on the site now plays the transition on click.
 
@@ -45,14 +45,21 @@ Three options are stored:
 
 All are deleted when the plugin is uninstalled.
 
+## Bonsai menu
+
+The settings screen lives in the shared **Bonsai** admin menu, provided by [Bonsai Hub](https://github.com/Bonsai-Systems/bonsai-hub). A copy of the hub is bundled in `lib/bonsai-hub/`, so this plugin sets up the menu on its own. Other Bonsai plugins appear alongside it, and **Bonsai → Plugins** installs, activates and deactivates the rest of the suite.
+
+- Don't edit `lib/bonsai-hub/` by hand. Change the bonsai-hub repo and run its `bin/sync.sh`.
+- Old `options-general.php?page=bonsai-page-transitions` links redirect to the new screen.
+
 ## Updates
 
-Ships with [YahnisElsts/plugin-update-checker](https://github.com/YahnisElsts/plugin-update-checker) (installed via Composer, `vendor/` committed) pointed at `github.com/gakdesign/bonsai-page-transitions`. Sites with the plugin installed will see updates in **Plugins** in wp-admin, same as `bonsai-code-injector`.
+Ships with [YahnisElsts/plugin-update-checker](https://github.com/YahnisElsts/plugin-update-checker) (installed via Composer, `vendor/` committed) pointed at `github.com/Bonsai-Systems/bonsai-page-transitions`. Sites with the plugin installed will see updates in **Plugins** in wp-admin, same as `bonsai-code-injector`.
 
 To ship a new version:
 
-1. Bump the `Version:` header in `bonsai-page-transitions.php` and add a `CHANGELOG.md` entry.
+1. Bump the `Version:` header and `BPT_VERSION` in `bonsai-page-transitions.php` and add a `CHANGELOG.md` entry.
 2. Commit and push to `main`.
-3. Publish a GitHub Release tagged with the new version (release-assets mode is enabled, so attach a zip of the plugin folder — plain source-archive tags won't be picked up).
+3. Publish a GitHub Release tagged with the new version (release-assets mode is enabled, so attach a zip of the plugin folder, including `lib/` and `vendor/` — plain source-archive tags won't be picked up).
 
 Sites check for updates every 6 hours (`$checkPeriod` argument to `buildUpdateChecker()`), or immediately if an admin clicks "Check again" on the Plugins screen.

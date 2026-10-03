@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-03
+
+### Added
+- [lib/bonsai-hub/] Bundled Bonsai Hub 1.0.0: a shared top-level **Bonsai** admin menu with a left-hand nav for every Bonsai plugin, plus a **Plugins** screen to install, activate and deactivate the rest of the suite from GitHub releases.
+
+### Changed
+- [bonsai-page-transitions.php] Settings moved from **Settings → Page Transitions** to **Bonsai → Page Transitions** (`admin.php?page=bonsai-page-transitions`), registered through the `bonsai_hub_modules` filter. Old `options-general.php` links redirect. No option or field changes.
+- [README.md] Update checker repo corrected to `Bonsai-Systems/bonsai-page-transitions`.
+
+### Removed
+- [includes/admin-ui.php, assets/bonsai-admin-ui.css, assets/bonsai-avatar.jpg] Per-plugin header and design-system copy. The hub now provides both.
+
 ## [1.1.0] - 2026-09-30
 
 ### Changed

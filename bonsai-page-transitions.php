@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai Page Transitions
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Plays a full-screen wipe animation (fade / slide up / curtain) whenever a visitor clicks a link to another page on the site. Real page loads underneath — no AJAX content-swap.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,14 +32,16 @@ $bpt_update_checker = PucFactory::buildUpdateChecker(
 $bpt_update_checker->setBranch( 'main' );
 $bpt_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BPT_VERSION', '1.1.0' );
+define( 'BPT_VERSION', '1.2.0' );
 define( 'BPT_PLUGIN_FILE', __FILE__ );
 define( 'BPT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BPT_OPTION_GROUP', 'bpt_settings_group' );
 define( 'BPT_PAGE_SLUG', 'bonsai-page-transitions' );
 define( 'BPT_CAPABILITY', apply_filters( 'bonsai_page_transitions_capability', 'manage_options' ) );
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/admin-ui.php';
+// Shared Bonsai admin menu, page shell and suite installer. Bundled copy of
+// the bonsai-hub repo; update it with bonsai-hub/bin/sync.sh, not by hand.
+require_once plugin_dir_path( __FILE__ ) . 'lib/bonsai-hub/bonsai-hub.php';
 
 // ---------------------------------------------------------------------------
 // Settings registration
@@ -143,20 +145,32 @@ function bpt_sanitize_colour( $value ) {
 // Admin menu + page
 // ---------------------------------------------------------------------------
 
-add_action( 'admin_menu', 'bpt_add_settings_page' );
-function bpt_add_settings_page() {
-	add_options_page(
-		__( 'Bonsai Page Transitions', 'bonsai-page-transitions' ),
-		__( 'Page Transitions', 'bonsai-page-transitions' ),
-		BPT_CAPABILITY,
-		BPT_PAGE_SLUG,
-		'bpt_render_settings_page'
+add_filter( 'bonsai_hub_modules', 'bpt_register_hub_module' );
+/**
+ * Registers the settings screen under the shared Bonsai menu. Old
+ * options-general.php?page=bonsai-page-transitions links are redirected
+ * here by the hub.
+ *
+ * @param array $modules Modules registered so far.
+ * @return array
+ */
+function bpt_register_hub_module( $modules ) {
+	$modules[ BPT_PAGE_SLUG ] = array(
+		'label'       => __( 'Page Transitions', 'bonsai-page-transitions' ),
+		'title'       => __( 'Bonsai Page Transitions', 'bonsai-page-transitions' ),
+		'description' => __( 'Choose the full-screen wipe animation played on internal link clicks, sitewide.', 'bonsai-page-transitions' ),
+		'version'     => BPT_VERSION,
+		'repo'        => 'https://github.com/Bonsai-Systems/bonsai-page-transitions',
+		'capability'  => BPT_CAPABILITY,
+		'enqueue'     => 'bpt_admin_enqueue',
+		'render'      => 'bpt_render_settings_page',
 	);
+	return $modules;
 }
 
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'bpt_add_settings_link' );
 function bpt_add_settings_link( $links ) {
-	$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=' . BPT_PAGE_SLUG ) ) . '">' . esc_html__( 'Settings', 'bonsai-page-transitions' ) . '</a>';
+	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . BPT_PAGE_SLUG ) ) . '">' . esc_html__( 'Settings', 'bonsai-page-transitions' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
@@ -198,50 +212,45 @@ function bpt_render_skip_homepage_field() {
 	<?php
 }
 
-add_action( 'admin_enqueue_scripts', 'bpt_admin_enqueue' );
-function bpt_admin_enqueue( $hook ) {
-	if ( 'settings_page_' . BPT_PAGE_SLUG !== $hook ) {
-		return;
-	}
-
-	bpt_enqueue_admin_ui();
+/**
+ * Colour picker for the settings screen. Called by the hub on this
+ * plugin's screen only, after the shared Bonsai styles.
+ *
+ * @return void
+ */
+function bpt_admin_enqueue() {
 	wp_enqueue_style( 'wp-color-picker' );
 	wp_enqueue_script( 'wp-color-picker' );
 	wp_add_inline_script( 'wp-color-picker', "jQuery(function($){ $('.bpt-colour-picker').wpColorPicker(); });" );
 }
 
+/**
+ * Settings form. The hub prints the page wrap, header, notices and nav
+ * around it, and has already checked BPT_CAPABILITY.
+ *
+ * @return void
+ */
 function bpt_render_settings_page() {
-	if ( ! current_user_can( BPT_CAPABILITY ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'bonsai-page-transitions' ) );
-	}
 	?>
-	<div class="wrap bonsai-ui bonsai-ui--narrow">
-		<?php
-		bpt_render_admin_header(
-			__( 'Bonsai Page Transitions', 'bonsai-page-transitions' ),
-			__( 'Choose the full-screen wipe animation played on internal link clicks, sitewide.', 'bonsai-page-transitions' )
-		);
-		?>
-		<form method="post" action="options.php">
-			<section class="bonsai-ui-card" aria-labelledby="bpt-settings-title">
-				<h2 class="bonsai-ui-card__title" id="bpt-settings-title"><?php esc_html_e( 'Transition', 'bonsai-page-transitions' ); ?></h2>
-				<p class="bonsai-ui-card__intro">
-					<?php
-					printf(
-						/* translators: %s: the no-transition CSS class */
-						esc_html__( 'Add a %s class to any link to opt it out.', 'bonsai-page-transitions' ),
-						'<code>no-transition</code>'
-					);
-					?>
-				</p>
+	<form method="post" action="options.php">
+		<section class="bonsai-ui-card" aria-labelledby="bpt-settings-title">
+			<h2 class="bonsai-ui-card__title" id="bpt-settings-title"><?php esc_html_e( 'Transition', 'bonsai-page-transitions' ); ?></h2>
+			<p class="bonsai-ui-card__intro">
 				<?php
-				settings_fields( BPT_OPTION_GROUP );
-				do_settings_sections( BPT_PAGE_SLUG );
+				printf(
+					/* translators: %s: the no-transition CSS class */
+					esc_html__( 'Add a %s class to any link to opt it out.', 'bonsai-page-transitions' ),
+					'<code>no-transition</code>'
+				);
 				?>
-			</section>
-			<?php submit_button(); ?>
-		</form>
-	</div>
+			</p>
+			<?php
+			settings_fields( BPT_OPTION_GROUP );
+			do_settings_sections( BPT_PAGE_SLUG );
+			?>
+		</section>
+		<?php submit_button(); ?>
+	</form>
 	<?php
 }
 
