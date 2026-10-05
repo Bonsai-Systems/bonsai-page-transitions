@@ -3,7 +3,7 @@
  * Plugin Name: Bonsai Page Transitions
  * Plugin URI:  https://bonsaidigitalcollective.co.uk/
  * Description: Plays a full-screen wipe animation (fade / slide up / curtain) whenever a visitor clicks a link to another page on the site. Real page loads underneath — no AJAX content-swap.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      The Bonsai Digital Collective
  * Author URI:  https://bonsaidigitalcollective.co.uk/
  * Requires at least: 6.0
@@ -32,7 +32,7 @@ $bpt_update_checker = PucFactory::buildUpdateChecker(
 $bpt_update_checker->setBranch( 'main' );
 $bpt_update_checker->getVcsApi()->enableReleaseAssets();
 
-define( 'BPT_VERSION', '1.2.0' );
+define( 'BPT_VERSION', '1.2.1' );
 define( 'BPT_PLUGIN_FILE', __FILE__ );
 define( 'BPT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BPT_OPTION_GROUP', 'bpt_settings_group' );
